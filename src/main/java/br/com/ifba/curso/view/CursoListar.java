@@ -24,7 +24,7 @@ public class CursoListar extends javax.swing.JFrame {
         initComponents();
         setLocationRelativeTo(null);
     }
-
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -103,7 +103,19 @@ public class CursoListar extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
     
     private void btnNovoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNovoActionPerformed
-        
+        try {
+        CursoCadastro dialog = new CursoCadastro(this, null);
+        dialog.setVisible(true);
+        Curso novoCurso = dialog.getCurso();
+        if (novoCurso != null) {
+            cursoDAO.save(novoCurso);
+            atualizarTabela();
+            JOptionPane.showMessageDialog(this, "Curso salvo com sucesso!");
+        }
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Erro ao salvar curso: " + ex.getMessage(), 
+                                    "Erro", JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_btnNovoActionPerformed
 
     private void tabelaCursosKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tabelaCursosKeyPressed
@@ -113,7 +125,27 @@ public class CursoListar extends javax.swing.JFrame {
     private void tfPesquisarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfPesquisarActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_tfPesquisarActionPerformed
-     
+     private void atualizarTabela() {
+    tableModel = (DefaultTableModel) tabelaCursos.getModel();
+    tableModel.setRowCount(0); // Limpa a tabela
+    
+    try {
+        List<Curso> cursos = cursoDAO.findAll();
+        for (Curso curso : cursos) {
+            tableModel.addRow(new Object[]{
+                curso.getNome(),
+                curso.getCargaHoraria(),
+                curso.getDescricao(),
+                curso.getFornecedor(),
+                "✖ Remover",
+                "✎ Editar"
+            });
+        }
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Erro ao carregar cursos: " + ex.getMessage(), 
+                                    "Erro", JOptionPane.ERROR_MESSAGE);
+    }
+}
     /**
      * @param args the command line arguments
      */
