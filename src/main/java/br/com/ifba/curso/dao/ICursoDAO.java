@@ -10,18 +10,12 @@ package br.com.ifba.curso.dao;
  */
 
 import br.com.ifba.curso.entity.Curso;
-import br.com.ifba.curso.exception.CursoException;
-import br.com.ifba.curso.dao.exceptions.DAOException;
+import br.com.ifba.curso.dao.generic.IGenericDAO;
 import java.util.List;
 
 /**
- * Interface do padrão DAO para a entidade Curso
+ * Interface específica para operações com Curso
  */
-
-public interface ICursoDAO {
-    Curso save(Curso curso) throws CursoException;
-    Curso update(Curso curso) throws CursoException;
-    void delete(Curso curso) throws CursoException;
-    List<Curso> findAll() throws CursoException;
-    Curso findById(Long id) throws CursoException;
+public interface ICursoDAO extends IGenericDAO<Curso> {
+    List<Curso> findByNome(String nome);  // Busca cursos por nome
 }

@@ -3,28 +3,82 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package br.com.ifba.curso.view;
-import br.com.ifba.curso.dao.CursoDAO;
-import br.com.ifba.curso.entity.Curso;
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import java.util.List;
+
 /**
  *
  * @author luiza
  */
-public class CursoListar extends javax.swing.JFrame {
+
+import br.com.ifba.curso.controller.CursoController;
+import br.com.ifba.curso.entity.Curso;
+import javax.swing.*;
+import javax.swing.table.*;
+import java.awt.Component;
+import java.awt.event.*;
+import java.util.List;
     
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(CursoListar.class.getName());
-    private final CursoDAO cursoDAO = new CursoDAO();
-    private DefaultTableModel tableModel;
     /**
-     * Creates new form CursoListar
-     */
-    public CursoListar() {
+ * Tela de listagem de cursos com funcionalidades CRUD
+ */
+public class CursoListar extends javax.swing.JFrame {
+    private final CursoController controller;
+    
+    public CursoListar(CursoController controller) {
+        this.controller = controller;
         initComponents();
+        configurarTabela();
+        atualizarTabela();
         setLocationRelativeTo(null);
     }
+    private void configurarTabela() {
+        // Configura renderizador para os botões
+        tabelaCursos.getColumn("Remover").setCellRenderer(new ButtonRenderer());
+        tabelaCursos.getColumn("Editar").setCellRenderer(new ButtonRenderer());
+        
+        // Adiciona listener para os cliques na tabela
+        tabelaCursos.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int column = tabelaCursos.getColumnModel().getColumnIndexAtX(e.getX());
+                int row = e.getY() / tabelaCursos.getRowHeight();
+                
+                if (row < 0 || row >= tabelaCursos.getRowCount()) return;
+                
+                if (column == 4) { // Coluna "Remover"
+                    removerCurso(row);
+                } else if (column == 5) { // Coluna "Editar"
+                    editarCurso(row);
+                }
+            }
+        });
+    }
     
+    /**
+     * Atualiza os dados da tabela com os cursos do banco de dados
+     */
+    private void atualizarTabela() {
+        DefaultTableModel model = (DefaultTableModel) tabelaCursos.getModel();
+        model.setRowCount(0); // Limpa a tabela
+        
+        try {
+            List<Curso> cursos = controller.listarTodosCursos();
+            for (Curso curso : cursos) {
+                model.addRow(new Object[]{
+                    curso.getNome(),
+                    curso.getCargaHoraria(),
+                    curso.getDescricao(),
+                    curso.getFornecedor(),
+                    "✖ Remover",
+                    "✎ Editar"
+                });
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, 
+                "Erro ao carregar cursos: " + ex.getMessage(), 
+                "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -80,7 +134,7 @@ public class CursoListar extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 484, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 485, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(tfPesquisar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(173, 173, 173)
@@ -103,72 +157,94 @@ public class CursoListar extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
     
     private void btnNovoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNovoActionPerformed
-        try {
-        CursoCadastro dialog = new CursoCadastro(this, null);
+       CursoCadastro dialog = new CursoCadastro(this, controller, null);
         dialog.setVisible(true);
-        Curso novoCurso = dialog.getCurso();
-        if (novoCurso != null) {
-            cursoDAO.save(novoCurso);
-            atualizarTabela();
-            JOptionPane.showMessageDialog(this, "Curso salvo com sucesso!");
-        }
-    } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, "Erro ao salvar curso: " + ex.getMessage(), 
-                                    "Erro", JOptionPane.ERROR_MESSAGE);
-    }
+        atualizarTabela();
     }//GEN-LAST:event_btnNovoActionPerformed
 
     private void tabelaCursosKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tabelaCursosKeyPressed
-        // TODO add your handling code here:
+    
     }//GEN-LAST:event_tabelaCursosKeyPressed
 
     private void tfPesquisarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfPesquisarActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_tfPesquisarActionPerformed
-     private void atualizarTabela() {
-    tableModel = (DefaultTableModel) tabelaCursos.getModel();
-    tableModel.setRowCount(0); // Limpa a tabela
-    
-    try {
-        List<Curso> cursos = cursoDAO.findAll();
-        for (Curso curso : cursos) {
-            tableModel.addRow(new Object[]{
-                curso.getNome(),
-                curso.getCargaHoraria(),
-                curso.getDescricao(),
-                curso.getFornecedor(),
-                "✖ Remover",
-                "✎ Editar"
-            });
-        }
-    } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, "Erro ao carregar cursos: " + ex.getMessage(), 
-                                    "Erro", JOptionPane.ERROR_MESSAGE);
-    }
-}
-    /**
-     * @param args the command line arguments
-     */
-    
-
-
-    public static void main(String args[]) {
+        String termo = tfPesquisar.getText().trim();
+        DefaultTableModel model = (DefaultTableModel) tabelaCursos.getModel();
+        model.setRowCount(0);
+        
         try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
+            List<Curso> cursos = controller.buscarPorNome(termo);
+            for (Curso curso : cursos) {
+                model.addRow(new Object[]{
+                    curso.getNome(),
+                    curso.getCargaHoraria(),
+                    curso.getDescricao(),
+                    curso.getFornecedor(),
+                    "✖ Remover",
+                    "✎ Editar"
+                });
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, 
+                "Erro na busca: " + ex.getMessage(), 
+                "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_tfPesquisarActionPerformed
+    /**
+     * Abre diálogo para editar curso selecionado
+     */
+    private void editarCurso(int row) {
+        try {
+            String nome = (String) tabelaCursos.getValueAt(row, 0);
+            List<Curso> cursos = controller.buscarPorNome(nome);
+            if (!cursos.isEmpty()) {
+                new CursoCadastro(this, controller, cursos.get(0)).setVisible(true);
+                atualizarTabela();
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, 
+                "Erro ao editar curso: " + ex.getMessage(), 
+                "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    /**
+     * Remove curso após confirmação
+     */
+    private void removerCurso(int row) {
+        try {
+            String nome = (String) tabelaCursos.getValueAt(row, 0);
+            List<Curso> cursos = controller.buscarPorNome(nome);
+            
+            if (!cursos.isEmpty()) {
+                int confirm = JOptionPane.showConfirmDialog(
+                    this, 
+                    "Deseja realmente excluir o curso " + nome + "?", 
+                    "Confirmação", 
+                    JOptionPane.YES_NO_OPTION);
+                
+                if (confirm == JOptionPane.YES_OPTION) {
+                    controller.removerCurso(cursos.get(0));
+                    atualizarTabela();
                 }
             }
         } catch (Exception ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(this, 
+                "Erro ao remover curso: " + ex.getMessage(), 
+                "Erro", JOptionPane.ERROR_MESSAGE);
         }
-
-        java.awt.EventQueue.invokeLater(() -> {
-            new CursoListar().setVisible(true);
-        });
     }
-
+    private static class ButtonRenderer extends JButton implements TableCellRenderer {
+        public ButtonRenderer() {
+            setOpaque(true);
+        }
+        
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+            boolean isSelected, boolean hasFocus, int row, int column) {
+            setText((value == null) ? "" : value.toString());
+            return this;
+        }
+    }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnNovo;
     private javax.swing.JScrollPane jScrollPane1;

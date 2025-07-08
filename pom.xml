@@ -12,11 +12,12 @@
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>8</maven.compiler.release> <!-- Java 8 compatível -->
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <hibernate.version>5.6.14.Final</hibernate.version>
         <postgresql.version>42.6.0</postgresql.version>
     </properties>
-
+    
     <dependencies>
         <!-- JPA/Hibernate -->
         <dependency>
@@ -30,83 +31,64 @@
             <version>${hibernate.version}</version>
         </dependency>
         
-        <!-- Driver PostgreSQL (Supabase) -->
+        <!-- Driver PostgreSQL -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${postgresql.version}</version>
         </dependency>
         
-        <!-- Swing (para telas JFrame) -->
+        <!-- Swing -->
         <dependency>
             <groupId>org.swinglabs</groupId>
             <artifactId>swingx</artifactId>
             <version>1.6.1</version>
         </dependency>
+        
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-c3p0</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
-        <sourceDirectory>src/main/java</sourceDirectory>
-        <testSourceDirectory>src/test/java</testSourceDirectory>
-        
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*.xml</include>
-                    <include>**/*.properties</include>
-                </includes>
-            </resource>
-        </resources>
-        
         <plugins>
-            <!-- Plugin para compilação moderna -->
+            <!-- Compilador Java -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <release>${maven.compiler.release}</release>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
-                    <showWarnings>true</showWarnings>
-                    <showDeprecation>true</showDeprecation>
                 </configuration>
             </plugin>
 
-            <!-- Plugin para execução -->
+            <!-- Execução do projeto -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <mainClass>br.com.ifba.curso.view.CursoListagem</mainClass>
-                    <arguments>
-                        <argument>arg1</argument>
-                    </arguments>
+                    <mainClass>br.com.ifba.Aplicacao</mainClass>
+                    <cleanupDaemonThreads>false</cleanupDaemonThreads>
                 </configuration>
             </plugin>
 
-            <!-- Plugin para criar diretórios automaticamente -->
+            <!-- Para criar JAR executável -->
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
                 <version>3.3.0</version>
-                <executions>
-                    <execution>
-                        <id>add-resources</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>add-resource</goal>
-                        </goals>
-                        <configuration>
-                            <resources>
-                                <resource>
-                                    <directory>src/main/resources</directory>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>br.com.ifba.Aplicacao</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
             </plugin>
         </plugins>
     </build>

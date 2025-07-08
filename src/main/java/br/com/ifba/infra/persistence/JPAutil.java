@@ -14,13 +14,12 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 /**
- * Utilitário para gerenciamento de conexões JPA/Hibernate
+ * Utilitário para gerenciamento de EntityManager JPA
  */
-public class JPAutil {
+public final class JPAutil {
     private static final String PERSISTENCE_UNIT = "cursoPU";
     private static EntityManagerFactory emf;
     
-    // Bloco estático para inicialização
     static {
         try {
             emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT);
@@ -29,16 +28,10 @@ public class JPAutil {
         }
     }
     
-    /**
-     * Obtém uma nova instância de EntityManager
-     */
     public static EntityManager getEntityManager() {
         return emf.createEntityManager();
     }
     
-    /**
-     * Fecha a fábrica de EntityManager
-     */
     public static void close() {
         if (emf != null && emf.isOpen()) {
             emf.close();

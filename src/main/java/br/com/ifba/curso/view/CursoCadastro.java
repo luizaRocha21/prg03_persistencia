@@ -8,43 +8,44 @@ package br.com.ifba.curso.view;
  *
  * @author luiza
  */
-
+import br.com.ifba.curso.controller.CursoController;
 import br.com.ifba.curso.entity.Curso;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.JSpinner;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import java.awt.GridLayout;
+import javax.swing.*;
+import java.awt.*;
+
+/**
+ * Diálogo para cadastro/edição de cursos
+ */
 
 public class CursoCadastro extends JDialog {
-    private final JTextField txtNome;
-    private final JTextField txtDescricao;
-    private final JTextField txtFornecedor;
-    private final JSpinner spnCargaHoraria;
-    private Curso curso;
+    private final JTextField txtNome = new JTextField();
+    private final JTextField txtDescricao = new JTextField();
+    private final JTextField txtFornecedor = new JTextField();
+    private final JSpinner spnCargaHoraria = new JSpinner(new SpinnerNumberModel(0, 0, 1000, 1));
+    private final Curso curso;
+    private final CursoController controller;
 
-    public CursoCadastro(CursoListar parent, Curso curso) {
+    public CursoCadastro(JFrame parent, CursoController controller, Curso curso) {
         super(parent, true);
+        this.controller = controller;
         this.curso = curso != null ? curso : new Curso();
-        
+        initComponents();
+    }
+
+    private void initComponents() {
         setTitle(curso.getId() == null ? "Novo Curso" : "Editar Curso");
         setSize(400, 300);
         setLayout(new GridLayout(5, 2, 10, 10));
         
-        txtNome = new JTextField();
-        txtDescricao = new JTextField();
-        txtFornecedor = new JTextField();
-        spnCargaHoraria = new JSpinner();
-        
-        if (curso != null) {
+        // Preenche campos se estiver editando
+        if (curso.getId() != null) {
             txtNome.setText(curso.getNome());
             txtDescricao.setText(curso.getDescricao());
             txtFornecedor.setText(curso.getFornecedor());
             spnCargaHoraria.setValue(curso.getCargaHoraria());
         }
         
+        // Adiciona componentes
         add(new JLabel("Nome:"));
         add(txtNome);
         add(new JLabel("Descrição:"));
@@ -60,16 +61,27 @@ public class CursoCadastro extends JDialog {
         add(btnSalvar);
     }
     
-    private void salvarCurso() {
-        curso.setNome(txtNome.getText());
-        curso.setDescricao(txtDescricao.getText());
-        curso.setFornecedor(txtFornecedor.getText());
-        curso.setCargaHoraria((Integer) spnCargaHoraria.getValue());
-        
-        dispose();
-    }
     
-    public Curso getCurso() {
-        return curso;
+    private void salvarCurso() {
+        try {
+            // Atualiza objeto curso
+            curso.setNome(txtNome.getText());
+            curso.setDescricao(txtDescricao.getText());
+            curso.setFornecedor(txtFornecedor.getText());
+            curso.setCargaHoraria((Integer) spnCargaHoraria.getValue());
+            
+            // Salva via controller
+            if (curso.getId() == null) {
+                controller.salvarCurso(curso);
+            } else {
+                controller.atualizarCurso(curso);
+            }
+            
+            dispose();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, 
+                "Erro ao salvar: " + ex.getMessage(), 
+                "Erro", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

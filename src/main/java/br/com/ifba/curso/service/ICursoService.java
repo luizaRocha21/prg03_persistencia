@@ -10,13 +10,16 @@ package br.com.ifba.curso.service;
  */
 
 import br.com.ifba.curso.entity.Curso;
-import br.com.ifba.curso.service.exceptions.ServiceException;
 import java.util.List;
 
+/**
+ * Contrato para operações de serviço com cursos
+ */
 public interface ICursoService {
-    Curso saveCurso(Curso curso) throws ServiceException;
-    Curso updateCurso(Curso curso) throws ServiceException;
-    void deleteCurso(Curso curso) throws ServiceException;
-    List<Curso> getAllCursos() throws ServiceException;
-    Curso findById(Long id) throws ServiceException;
+    Curso saveCurso(Curso curso);          // Salva novo curso
+    Curso updateCurso(Curso curso);        // Atualiza curso existente
+    void deleteCurso(Curso curso);         // Remove curso
+    List<Curso> getAllCursos();           // Lista todos cursos
+    List<Curso> findByNome(String nome);   // Busca por nome
+    Curso findById(Long id);               // Busca por ID
 }

@@ -10,29 +10,56 @@
         <class>br.com.ifba.curso.entity.Curso</class>
         
         <properties>
-            <!-- Configuração para Supabase (PostgreSQL) -->
-            <property name="javax.persistence.jdbc.driver" 
-                      value="org.postgresql.Driver"/>
-                      
-            <!-- URL CORRIGIDA com seu endereço do Supabase -->
-            <property name="javax.persistence.jdbc.url" 
-                      value="jdbc:postgresql://oznpfvvubnpxwisdrqfr.supabase.co:5432/postgres"/>
-                      
-            <!-- Credenciais padrão do Supabase -->
-            <property name="javax.persistence.jdbc.user" 
-                      value="postgres"/>
-            <property name="javax.persistence.jdbc.password" 
-                      value="+hB.cU7kfNd7Kj9"/>
+            <!-- ============================================= -->
+            <!-- CONFIGURAÇÕES BÁSICAS (OBRIGATÓRIAS) -->
+            <!-- ============================================= -->
+            <property name="javax.persistence.jdbc.user" value="${DB_USER}"/>
+            <property name="javax.persistence.jdbc.password" value="${DB_PASSWORD}"/>
             
-            <!-- Configurações do Hibernate -->
+            <!-- ============================================= -->
+            <!-- CONFIGURAÇÕES DO HIBERNATE -->
+            <!-- ============================================= -->
             <property name="hibernate.dialect" 
                       value="org.hibernate.dialect.PostgreSQLDialect"/>
+                      
+            <!-- Valores possíveis: validate | update | create | create-drop -->
             <property name="hibernate.hbm2ddl.auto" 
                       value="update"/>
+                      
+            <!-- Logging -->
             <property name="hibernate.show_sql" 
                       value="true"/>
             <property name="hibernate.format_sql" 
                       value="true"/>
+                      
+            <!-- ============================================= -->
+            <!-- CONFIGURAÇÕES DE PERFORMANCE -->
+            <!-- ============================================= -->
+            <!-- Pool de conexões -->
+            <property name="hibernate.c3p0.min_size" 
+                      value="5"/>
+            <property name="hibernate.c3p0.max_size" 
+                      value="20"/>
+            <property name="hibernate.c3p0.timeout" 
+                      value="300"/>
+            <property name="hibernate.c3p0.idle_test_period" 
+                      value="3000"/>
+                      
+            <!-- Otimizações -->
+            <property name="hibernate.jdbc.batch_size" 
+                      value="20"/>
+            <property name="hibernate.order_inserts" 
+                      value="true"/>
+            <property name="hibernate.order_updates" 
+                      value="true"/>
+                      
+            <!-- ============================================= -->
+            <!-- CONFIGURAÇÕES ESPECÍFICAS PARA SUPABASE -->
+            <!-- ============================================= -->
+            <property name="hibernate.connection.ssl" 
+                      value="true"/>
+            <property name="hibernate.connection.sslmode" 
+                      value="require"/>
         </properties>
     </persistence-unit>
 </persistence>
