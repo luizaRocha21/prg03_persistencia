@@ -9,56 +9,51 @@ package br.com.ifba.curso.service;
  * @author luiza
  */
 
-import br.com.ifba.curso.dao.ICursoDAO;
+import br.com.ifba.curso.dao.CursoRepository;
 import br.com.ifba.curso.entity.Curso;
 import br.com.ifba.curso.util.StringUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
-/**
- * Implementação concreta do serviço de cursos
- */
-public class CursoService implements ICursoService {
-    private final ICursoDAO cursoDAO;
+@Service
+@Transactional // Habilita transações automáticas
+public class CursoService {
     
-    public CursoService(ICursoDAO cursoDAO) {
-        this.cursoDAO = cursoDAO;
+    private final CursoRepository cursoRepository;
+
+    @Autowired
+    public CursoService(CursoRepository cursoRepository) {
+        this.cursoRepository = cursoRepository;
     }
-    
-    @Override
+
     public Curso saveCurso(Curso curso) {
         validarCurso(curso);
-        return cursoDAO.save(curso);
+        return cursoRepository.save(curso);
     }
-    
-    @Override
+
     public Curso updateCurso(Curso curso) {
         validarCurso(curso);
-        return cursoDAO.update(curso);
+        return cursoRepository.save(curso); // Save também atualiza se o ID existir
     }
-    
-    @Override
+
     public void deleteCurso(Curso curso) {
-        cursoDAO.delete(curso);
+        cursoRepository.delete(curso);
     }
-    
-    @Override
+
     public List<Curso> getAllCursos() {
-        return cursoDAO.findAll();
+        return cursoRepository.findAll();
     }
-    
-    @Override
+
     public List<Curso> findByNome(String nome) {
-        return cursoDAO.findByNome(nome);
+        return cursoRepository.findByNomeContainingIgnoreCase(nome);
     }
-    
-    @Override
+
     public Curso findById(Long id) {
-        return cursoDAO.findById(id);
+        return cursoRepository.findById(id).orElse(null);
     }
-    
-    /**
-     * Valida os dados do curso conforme regras de negócio
-     */
+
     private void validarCurso(Curso curso) {
         if (StringUtil.isEmpty(curso.getNome())) {
             throw new IllegalArgumentException("Nome do curso é obrigatório");

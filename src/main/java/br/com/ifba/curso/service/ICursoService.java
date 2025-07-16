@@ -12,14 +12,11 @@ package br.com.ifba.curso.service;
 import br.com.ifba.curso.entity.Curso;
 import java.util.List;
 
-/**
- * Contrato para operações de serviço com cursos
- */
 public interface ICursoService {
-    Curso saveCurso(Curso curso);          // Salva novo curso
-    Curso updateCurso(Curso curso);        // Atualiza curso existente
-    void deleteCurso(Curso curso);         // Remove curso
-    List<Curso> getAllCursos();           // Lista todos cursos
-    List<Curso> findByNome(String nome);   // Busca por nome
-    Curso findById(Long id);               // Busca por ID
+    Curso saveCurso(Curso curso);
+    Curso updateCurso(Curso curso);
+    void deleteCurso(Curso curso);
+    List<Curso> getAllCursos();
+    List<Curso> findByNome(String nome);
+    Curso findById(Long id);
 }
