@@ -17,10 +17,10 @@ import org.springframework.data.repository.query.Param;
 
 public interface CursoRepository extends JpaRepository<Curso, Long> {
     
-    // Método customizado equivalente ao findByNome do DAO antigo
+    // Método equivalente ao findByNome do DAO
     List<Curso> findByNomeContainingIgnoreCase(String nome);
     
-    // Exemplo de consulta com JPQL explícito (opcional)
+    // Consulta com JPQL explícito
     @Query("SELECT c FROM Curso c WHERE c.cargaHoraria > :minHoras")
     List<Curso> findByCargaHorariaMinima(@Param("minHoras") int minHoras);
 }

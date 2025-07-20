@@ -3,38 +3,75 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:jpa="http://www.springframework.org/schema/data/jpa"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans.xsd
-       http://www.springframework.org/schema/context
-       http://www.springframework.org/schema/context/spring-context.xsd
-       http://www.springframework.org/schema/data/jpa
-       http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context.xsd
+           http://www.springframework.org/schema/data/jpa
+           http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+           http://www.springframework.org/schema/tx
+           http://www.springframework.org/schema/tx/spring-tx.xsd">
 
+    <!-- Configuração básica do Spring -->
     <context:component-scan base-package="br.com.ifba"/>
     <context:annotation-config/>
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+    <!-- Configuração do Spring Data JPA -->
     <jpa:repositories base-package="br.com.ifba.curso.dao"/>
 
+    <!-- Configuração do DataSource HikariCP -->
+    <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <property name="driverClassName" value="org.postgresql.Driver"/>
+        <property name="jdbcUrl" value="${DB_URL}"/>
+        <property name="username" value="${DB_USER}"/>
+        <property name="password" value="${DB_PASSWORD}"/>
+        <property name="maximumPoolSize" value="20"/>
+        <property name="minimumIdle" value="5"/>
+        <property name="connectionTimeout" value="30000"/>
+        <property name="idleTimeout" value="300000"/>
+        <property name="maxLifetime" value="600000"/>
+        <property name="connectionTestQuery" value="SELECT 1"/>
+    </bean>
+
+    <!-- Configuração do EntityManagerFactory -->
     <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-        <property name="persistenceUnitName" value="cursoPU"/>
+        <property name="dataSource" ref="dataSource"/>
         <property name="packagesToScan" value="br.com.ifba.curso.entity"/>
         <property name="jpaVendorAdapter">
             <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
                 <property name="showSql" value="true"/>
                 <property name="generateDdl" value="true"/>
-                <property name="databasePlatform" value="org.hibernate.dialect.PostgreSQLDialect"/>
             </bean>
         </property>
         <property name="jpaProperties">
             <props>
-                <!-- Configurações Supabase -->
+                <!-- Configurações do Hibernate -->
+                <prop key="hibernate.hbm2ddl.auto">${HIBERNATE_DDL:update}</prop>
+                <prop key="hibernate.show_sql">true</prop>
+                <prop key="hibernate.format_sql">true</prop>
+                
+                <!-- Configurações SSL para Supabase -->
                 <prop key="hibernate.connection.ssl">true</prop>
                 <prop key="hibernate.connection.sslmode">require</prop>
-                <prop key="hibernate.connection.timeout">30</prop>
+                
+                <!-- Otimizações para Hibernate 6+ -->
+                <prop key="hibernate.allow_jdbc_metadata_access">true</prop>
+                <prop key="hibernate.jdbc.time_zone">UTC</prop>
             </props>
         </property>
     </bean>
 
+    <!-- Gerenciador de transações -->
     <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
         <property name="entityManagerFactory" ref="entityManagerFactory"/>
     </bean>
+
+    <!-- Configuração para carregar propriedades externas -->
+    <context:property-placeholder 
+        location="classpath:jdbc.properties"
+        ignore-resource-not-found="true"
+        ignore-unresolvable="true"/>
 </beans>
