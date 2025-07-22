@@ -11,16 +11,24 @@ package br.com.ifba;
 
 import br.com.ifba.curso.controller.CursoController;
 import br.com.ifba.curso.view.CursoListar;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import javax.swing.SwingUtilities;
 
+@Slf4j
 public class Aplicacao {
     public static void main(String[] args) {
-        var context = new ClassPathXmlApplicationContext("applicationContext.xml");
-        CursoController controller = context.getBean(CursoController.class);
-        
-        SwingUtilities.invokeLater(() -> {
-            new CursoListar(controller).setVisible(true);
-        });
+        log.info("Iniciando aplicação");
+        try {
+            var context = new ClassPathXmlApplicationContext("applicationContext.xml");
+            CursoController controller = context.getBean(CursoController.class);
+            
+            SwingUtilities.invokeLater(() -> {
+                log.debug("Criando e exibindo janela principal");
+                new CursoListar(controller).setVisible(true);
+            });
+        } catch (Exception e) {
+            log.error("Falha ao iniciar aplicação", e);
+        }
     }
 }
